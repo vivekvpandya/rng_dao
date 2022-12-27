@@ -63,11 +63,16 @@ fn basic_rng_works() {
 		System::assert_last_event(Event::CycleCreated { bounty, creator: ALICE }.into());
 
 		// BOB takes part
+		let bob_free_balance = Balances::free_balance(BOB);
 		let bob_secret = 9897_u64;
 		let bob_hash = Keccak256::hash(&bob_secret.to_le_bytes());
 		assert_ok!(RngDao::send_hash(RuntimeOrigin::signed(BOB), cycle_id, bob_hash, false));
 		System::assert_last_event(
 			Event::HashReceived { cycle_id, sender: BOB, hash: bob_hash }.into(),
+		);
+		assert_eq!(
+			Balances::free_balance(BOB),
+			bob_free_balance - <Test as crate::Config>::Deposit::get()
 		);
 		// CHARLIE takes part
 		let charlie_secret = 120019_u64;
@@ -106,6 +111,12 @@ fn basic_rng_works() {
 			charlie_secret,
 			false
 		));
+		let cycle = RngDao::cycles(cycle_id).expect("Cycle not found");
+		// BOB get's his deposit back and he earns share from bounty too.
+		assert_eq!(
+			Balances::free_balance(BOB),
+			bob_free_balance + bounty / (cycle.generators_count as u128 + 1_u128)
+		);
 		System::assert_last_event(Event::SecretReceived { cycle_id, sender: CHARLIE }.into());
 		// BOT reveals
 		assert_ok!(RngDao::reveal_secret(RuntimeOrigin::signed(BOT), cycle_id, bot_secret, true));
