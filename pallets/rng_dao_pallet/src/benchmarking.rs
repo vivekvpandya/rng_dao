@@ -2,7 +2,7 @@ use super::*;
 
 #[allow(unused)]
 use crate::Pallet as RngDao;
-use frame_benchmarking::{benchmarks, whitelisted_caller, account, whitelist_account};
+use frame_benchmarking::{account, benchmarks, whitelist_account, whitelisted_caller};
 use frame_support::{assert_ok, traits::fungible::Mutate};
 use frame_system::RawOrigin;
 use sp_runtime::traits::{Get, Hash, Keccak256, One};
@@ -27,7 +27,8 @@ benchmarks! {
 		let cycle_id : T::CycleId = 0_u128.into();
 		let caller: T::AccountId = whitelisted_caller();
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, bounty.clone().into()));
+		let mint_amount: <T as crate::Config>::Balance = 10000_u128.into();
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, mint_amount.into()));
 	}: _(RawOrigin::Signed(caller.clone()), bounty.clone())
 	verify {
 		assert_eq!(
@@ -50,11 +51,13 @@ benchmarks! {
 		let origin: T::AccountId = account("ALICE", 0_u32, 1_u32);
 		whitelist_account!(origin);
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, bounty.clone().into()));
+
+		let mint_amount: <T as crate::Config>::Balance = 10000_u128.into();
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, mint_amount.clone().into()));
 		assert_ok!(RngDao::<T>::create_new_rng_cycle(RawOrigin::Signed(origin.clone()).into(), bounty.clone()));
 		let caller: T::AccountId = whitelisted_caller();
 		let deposit: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, deposit.clone().into()));
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, mint_amount.clone().into()));
 		let bytes = 1212_u64.to_le_bytes();
 		let hash = Keccak256::hash(&bytes);
 
@@ -70,11 +73,12 @@ benchmarks! {
 		let origin: T::AccountId = account("ALICE", 0_u32, 1_u32);
 		whitelist_account!(origin);
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, bounty.clone().into()));
+		let mint_amount: <T as crate::Config>::Balance = 10000_u128.into();
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, mint_amount.clone().into()));
 		assert_ok!(RngDao::<T>::create_new_rng_cycle(RawOrigin::Signed(origin.clone()).into(), bounty.clone()));
 		let caller: T::AccountId = whitelisted_caller();
 		let deposit: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, deposit.clone().into()));
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, mint_amount.clone().into()));
 		let secret: u64 = 1212_u64;
 		let bytes = secret.to_le_bytes();
 		let hash = Keccak256::hash(&bytes);
@@ -99,10 +103,11 @@ benchmarks! {
 		let origin: T::AccountId = account("ALICE", 0_u32, 1_u32);
 		whitelist_account!(origin);
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, bounty.clone().into()));
+		let mint_amount: <T as crate::Config>::Balance = 10000_u128.into();
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, mint_amount.clone().into()));
 		assert_ok!(RngDao::<T>::create_new_rng_cycle(RawOrigin::Signed(caller.clone()).into(), bounty.clone()));
 		let deposit: <T as crate::Config>::Balance = 1000_u128.into();
-		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, deposit.clone().into()));
+		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, mint_amount.clone().into()));
 		let secret: u64 = 1212_u64;
 		let bytes = secret.to_le_bytes();
 		let hash = Keccak256::hash(&bytes);

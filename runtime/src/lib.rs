@@ -37,8 +37,7 @@ pub use frame_support::{
 		},
 		IdentityFee, Weight,
 	},
-	StorageValue,
-	PalletId,
+	PalletId, StorageValue,
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
@@ -47,6 +46,8 @@ use pallet_transaction_payment::{ConstFeeMultiplier, CurrencyAdapter, Multiplier
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
+
+mod weights;
 
 /// Import the template pallet.
 pub use pallet_rng_dao;
@@ -242,7 +243,7 @@ impl pallet_timestamp::Config for Runtime {
 }
 
 /// Existential deposit.
-pub const EXISTENTIAL_DEPOSIT: u128 = 500;
+pub const EXISTENTIAL_DEPOSIT: u128 = 1;
 
 impl pallet_balances::Config for Runtime {
 	type MaxLocks = ConstU32<50>;
@@ -299,7 +300,7 @@ impl pallet_rng_dao::Config for Runtime {
 	type DelayBeforeSecondPhase = DelayBeforeSecondPhase;
 	type SecondPhaseDuration = SecondPhaseDuration;
 	type MaxGenerators = MaxGenerators;
-	type WeightInfo = pallet_rng_dao::weights::RuntimeWeight<Runtime>;
+	type WeightInfo = weights::rng_dao_pallet::RuntimeWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.

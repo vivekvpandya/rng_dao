@@ -309,7 +309,7 @@ pub mod pallet {
 					&Self::account_id(&cycle_id.clone()),
 					&who,
 					cycle.bounty,
-					true,
+					false,
 				)?;
 				Self::deposit_event(Event::<T>::CycleFailed { cycle_id, creator: who });
 				Ok(())
