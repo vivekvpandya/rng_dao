@@ -99,6 +99,7 @@ impl Config for Test {
 	type DelayBeforeSecondPhase = DelayBeforeSecondPhase;
 	type SecondPhaseDuration = SecondPhaseDuration;
 	type MaxGenerators = MaxGenerators;
+	type WeightInfo = ();
 }
 
 pub struct ExtBuilder {

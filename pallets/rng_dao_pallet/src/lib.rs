@@ -11,11 +11,14 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
+mod weights;
+
 //NOTE: Generate hash of secret number (u64) based on its little_endian representation as array of
 //u8 (byte)
 
 #[frame_support::pallet]
 pub mod pallet {
+	use crate::weights::RngDaoWeightInfo;
 	use codec::FullCodec;
 	use core::fmt::Debug;
 	use frame_support::{
@@ -109,6 +112,8 @@ pub mod pallet {
 
 		#[pallet::constant]
 		type PalletId: Get<PalletId>;
+
+		type WeightInfo: RngDaoWeightInfo;
 	}
 
 	#[pallet::type_value]
@@ -161,7 +166,7 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 		#[pallet::call_index(0)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::create_new_rng_cycle())]
 		pub fn create_new_rng_cycle(origin: OriginFor<T>, bounty: BalanceOf<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(bounty >= T::MinBounty::get(), Error::<T>::BountyMustBeGreaterThanMinBounty);
@@ -192,7 +197,7 @@ pub mod pallet {
 		}
 
 		#[pallet::call_index(1)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::send_hash())]
 		pub fn send_hash(
 			origin: OriginFor<T>,
 			cycle_id: T::CycleId,
@@ -234,7 +239,7 @@ pub mod pallet {
 		/// As soon as generator reveals correct secret, his/her deposit + reward is returned.
 		/// If secret is different than hash commited in first phase then he/she looses deposit.
 		#[pallet::call_index(2)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::reveal_secret())]
 		pub fn reveal_secret(
 			origin: OriginFor<T>,
 			cycle_id: T::CycleId,
@@ -285,7 +290,7 @@ pub mod pallet {
 		}
 
 		#[pallet::call_index(3)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		#[pallet::weight(T::WeightInfo::get_random_number())]
 		pub fn get_random_number(origin: OriginFor<T>, cycle_id: T::CycleId) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			// only creator can execute this extrinsic
