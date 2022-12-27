@@ -1,6 +1,10 @@
 use crate as pallet_rng_dao;
 use crate::pallet::Config;
-use frame_support::{parameter_types, traits::{ConstU16, ConstU64}, PalletId};
+use frame_support::{
+	parameter_types,
+	traits::{ConstU16, ConstU64},
+	PalletId,
+};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -17,8 +21,9 @@ type CycleId = u128;
 pub static ALICE: AccountId = 1;
 pub static BOB: AccountId = 2;
 pub static CHARLIE: AccountId = 3;
-pub static BOT: AccountId = 4;
-
+pub static EVE: AccountId = 4;
+pub static TOM: AccountId = 5;
+pub static BOT: AccountId = 6;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
@@ -79,7 +84,7 @@ parameter_types! {
 	pub DelayBeforeBots: u64 = 3_u64;
 	pub DelayBeforeSecondPhase: u64 = 2_u64;
 	pub SecondPhaseDuration: u64 = 5_u64;
-	pub MaxGenerators: u8 = 10_8;
+	pub MaxGenerators: u8 = 3_u8;
 }
 
 impl Config for Test {
@@ -96,26 +101,33 @@ impl Config for Test {
 	type MaxGenerators = MaxGenerators;
 }
 
-
 pub struct ExtBuilder {
-    balances: Vec<(AccountId, Balance)>,
+	balances: Vec<(AccountId, Balance)>,
 }
 
 impl Default for ExtBuilder {
-    fn default() -> Self {
-        Self { balances: vec![(ALICE, 1_000), (BOB, 1_000), (CHARLIE, 1_000), (BOT, 1_000)] }
-    }
+	fn default() -> Self {
+		Self {
+			balances: vec![
+				(ALICE, 1_000),
+				(BOB, 1_000),
+				(CHARLIE, 1_000),
+				(EVE, 1_000),
+				(TOM, 1_000),
+				(BOT, 1_000),
+			],
+		}
+	}
 }
 
 impl ExtBuilder {
-    pub fn build(self) -> sp_io::TestExternalities {
-        let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
+	pub fn build(self) -> sp_io::TestExternalities {
+		let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
 
-        pallet_balances::GenesisConfig::<Test> { balances: self.balances }
-            .assimilate_storage(&mut t)
-            .unwrap();
+		pallet_balances::GenesisConfig::<Test> { balances: self.balances }
+			.assimilate_storage(&mut t)
+			.unwrap();
 
-        t.into()
-    }
+		t.into()
+	}
 }
-
