@@ -11,7 +11,7 @@ mod tests;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 
-mod weights;
+pub mod weights;
 
 //NOTE: Generate hash of secret number (u64) based on its little_endian representation as array of
 //u8 (byte)

@@ -2,7 +2,7 @@ use super::*;
 
 #[allow(unused)]
 use crate::Pallet as RngDao;
-use frame_benchmarking::{benchmarks, whitelisted_caller};
+use frame_benchmarking::{benchmarks, whitelisted_caller, account, whitelist_account};
 use frame_support::{assert_ok, traits::fungible::Mutate};
 use frame_system::RawOrigin;
 use sp_runtime::traits::{Get, Hash, Keccak256, One};
@@ -16,15 +16,14 @@ benchmarks! {
 		T: pallet_balances::Config
 		+ frame_system::Config
 		+ crate::Config,
-		<T as frame_system::Config>::BlockNumber: From<u64>,
-		<T as frame_system::Config>::AccountId: From<u64>,
+		<T as frame_system::Config>::BlockNumber: From<u32>,
 		<T as crate::Config>::Balance: From<u128>,
 		<T as pallet_balances::Config>::Balance: From<<T as crate::Config>::Balance>,
 		<T as crate::Config>::CycleId: From<u128>
 	}
 
 	create_new_rng_cycle {
-		frame_system::Pallet::<T>::set_block_number(1_u64.into());
+		frame_system::Pallet::<T>::set_block_number(1_u32.into());
 		let cycle_id : T::CycleId = 0_u128.into();
 		let caller: T::AccountId = whitelisted_caller();
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
@@ -37,7 +36,7 @@ benchmarks! {
 				RngCycle {
 					creator: caller,
 					bounty,
-					started: 1_u64.into(),
+					started: 1_u32.into(),
 					generators_count: 0_u8,
 					revealed_count: 0_u8,
 					random_number: 0_u64,
@@ -46,9 +45,10 @@ benchmarks! {
 	}
 
 	send_hash {
-		frame_system::Pallet::<T>::set_block_number(1_u64.into());
+		frame_system::Pallet::<T>::set_block_number(1_u32.into());
 		let cycle_id : T::CycleId = 0_u128.into();
-		let origin: T::AccountId = 1_u64.into();
+		let origin: T::AccountId = account("ALICE", 0_u32, 1_u32);
+		whitelist_account!(origin);
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
 		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, bounty.clone().into()));
 		assert_ok!(RngDao::<T>::create_new_rng_cycle(RawOrigin::Signed(origin.clone()).into(), bounty.clone()));
@@ -65,9 +65,10 @@ benchmarks! {
 	}
 
 	reveal_secret {
-		frame_system::Pallet::<T>::set_block_number(1_u64.into());
+		frame_system::Pallet::<T>::set_block_number(1_u32.into());
 		let cycle_id : T::CycleId = 0_u128.into();
-		let origin: T::AccountId = 1_u64.into();
+		let origin: T::AccountId = account("ALICE", 0_u32, 1_u32);
+		whitelist_account!(origin);
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
 		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&origin, bounty.clone().into()));
 		assert_ok!(RngDao::<T>::create_new_rng_cycle(RawOrigin::Signed(origin.clone()).into(), bounty.clone()));
@@ -92,10 +93,11 @@ benchmarks! {
 
 	// NOTE: get_random_number does more work when cycle fails as it has to return bounty
 	get_random_number {
-		frame_system::Pallet::<T>::set_block_number(1_u64.into());
+		frame_system::Pallet::<T>::set_block_number(1_u32.into());
 		let cycle_id : T::CycleId = 0_u128.into();
 		let caller: T::AccountId = whitelisted_caller();
-		let origin: T::AccountId = 1_u64.into();
+		let origin: T::AccountId = account("ALICE", 0_u32, 1_u32);
+		whitelist_account!(origin);
 		let bounty: <T as crate::Config>::Balance = 1000_u128.into();
 		assert_ok!(<pallet_balances::Pallet::<T> as Mutate<T::AccountId>>::mint_into(&caller, bounty.clone().into()));
 		assert_ok!(RngDao::<T>::create_new_rng_cycle(RawOrigin::Signed(caller.clone()).into(), bounty.clone()));

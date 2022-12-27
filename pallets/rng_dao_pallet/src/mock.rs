@@ -2,13 +2,13 @@ use crate as pallet_rng_dao;
 use crate::pallet::Config;
 use frame_support::{
 	parameter_types,
-	traits::{ConstU16, ConstU64},
+	traits::{ConstU16, ConstU32},
 	PalletId,
 };
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
-	testing::Header,
+	generic::Header,
 	traits::{BlakeTwo256, IdentityLookup},
 };
 
@@ -45,15 +45,15 @@ impl system::Config for Test {
 	type DbWeight = ();
 	type RuntimeOrigin = RuntimeOrigin;
 	type RuntimeCall = RuntimeCall;
-	type Index = u64;
-	type BlockNumber = u64;
+	type Index = u32;
+	type BlockNumber = u32;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
 	type AccountId = AccountId;
 	type Lookup = IdentityLookup<Self::AccountId>;
-	type Header = Header;
+	type Header = Header<u32, BlakeTwo256>;
 	type RuntimeEvent = RuntimeEvent;
-	type BlockHashCount = ConstU64<250>;
+	type BlockHashCount = ConstU32<250>;
 	type Version = ();
 	type PalletInfo = PalletInfo;
 	type AccountData = pallet_balances::AccountData<Balance>;
@@ -81,9 +81,9 @@ parameter_types! {
 	pub MinBounty: u128 = 100_u128;
 	pub Deposit: u128 = 300_u128;
 	pub TestPalletId : PalletId = PalletId(*b"rng_dao_");
-	pub DelayBeforeBots: u64 = 3_u64;
-	pub DelayBeforeSecondPhase: u64 = 2_u64;
-	pub SecondPhaseDuration: u64 = 5_u64;
+	pub DelayBeforeBots: u32 = 3_u32;
+	pub DelayBeforeSecondPhase: u32 = 2_u32;
+	pub SecondPhaseDuration: u32 = 5_u32;
 	pub MaxGenerators: u8 = 3_u8;
 }
 

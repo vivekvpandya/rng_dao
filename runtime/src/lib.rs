@@ -38,6 +38,7 @@ pub use frame_support::{
 		IdentityFee, Weight,
 	},
 	StorageValue,
+	PalletId,
 };
 pub use frame_system::Call as SystemCall;
 pub use pallet_balances::Call as BalancesCall;
@@ -48,7 +49,7 @@ pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
 /// Import the template pallet.
-pub use pallet_template;
+pub use pallet_rng_dao;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -275,9 +276,30 @@ impl pallet_sudo::Config for Runtime {
 	type RuntimeCall = RuntimeCall;
 }
 
+parameter_types! {
+	pub MinBounty: u128 = 100_u128;
+	pub Deposit: u128 = 300_u128;
+	pub TestPalletId : PalletId = PalletId(*b"rng_dao_");
+	pub DelayBeforeBots: u32 = 3_u32;
+	pub DelayBeforeSecondPhase: u32 = 2_u32;
+	pub SecondPhaseDuration: u32 = 5_u32;
+	pub MaxGenerators: u8 = 3_u8;
+}
+
 /// Configure the pallet-template in pallets/template.
-impl pallet_template::Config for Runtime {
+impl pallet_rng_dao::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	type CycleId = u128;
+	type Balance = u128;
+	type Deposit = Deposit;
+	type MinBounty = MinBounty;
+	type Balances = Balances;
+	type PalletId = TestPalletId;
+	type DelayBeforeBots = DelayBeforeBots;
+	type DelayBeforeSecondPhase = DelayBeforeSecondPhase;
+	type SecondPhaseDuration = SecondPhaseDuration;
+	type MaxGenerators = MaxGenerators;
+	type WeightInfo = pallet_rng_dao::weights::RuntimeWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -297,7 +319,7 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
 		// Include the custom logic from the pallet-template in the runtime.
-		TemplateModule: pallet_template,
+		RngDao: pallet_rng_dao,
 	}
 );
 
@@ -344,7 +366,7 @@ mod benches {
 		[frame_system, SystemBench::<Runtime>]
 		[pallet_balances, Balances]
 		[pallet_timestamp, Timestamp]
-		[pallet_template, TemplateModule]
+		[pallet_rng_dao, RngDao]
 	);
 }
 
